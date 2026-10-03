@@ -1,0 +1,17 @@
+package com.lavaflow.common.enums;
+
+public enum OrderStatus {
+    PLACED,
+    ALLOCATED,
+    KITCHEN_PENDING,
+    KITCHEN_ACCEPTED,
+    KITCHEN_REJECTED,
+    PAYMENT_PENDING,
+    PAYMENT_CONFIRMED,
+    PREPARING,
+    READY_FOR_PICKUP,
+    OUT_FOR_DELIVERY,
+    DELIVERED,
+    CANCELLED,
+    REFUNDED
+}
