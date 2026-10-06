@@ -8,6 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Core user entity for LavaFlow. A single user row represents every role on the platform.
+ * restaurant is NULL for SUPER_ADMIN and optionally NULL for CUSTOMER.
+ * is_active replaces the status enum: a simple boolean keeps the model clean.
+ */
 @Entity
 @Table(name = "users")
 @Getter
@@ -31,6 +36,10 @@ public class User extends BaseEntity {
     @Column(name = "role", nullable = false, length = 50)
     private UserRole role = UserRole.CUSTOMER;
 
+    /**
+     * NULL  →  SUPER_ADMIN or unscoped CUSTOMER
+     * non-NULL  →  user belongs to exactly one restaurant tenant
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
