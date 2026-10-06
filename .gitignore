@@ -31,3 +31,17 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+### Environment variables ###
+.env
+.env.*
+!.env.example
+
+### Private / secret keys ###
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
