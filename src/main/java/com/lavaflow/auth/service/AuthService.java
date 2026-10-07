@@ -25,21 +25,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Core authentication service for LavaFlow.
- *
- * ADAPTED from College Bridge AuthService:
- * - Login flow (AuthenticationManager → UserPrincipal → generateAccessToken → createRefreshToken) reused.
- * - Refresh token rotation strategy (revoke old → issue new) reused.
- * - Refresh-token reuse detection (revoke all sessions on reuse) reused.
- * - Logout (revoke refresh token + Redis revocation) reused.
- * - Removed CB-specific: register (institution lookup, student/teacher creation, enrollment),
- *   InstitutionStatus checks, institutionId in response.
- *
- * Responsibilities:
- *   login / refreshToken / logout only.
- *   No restaurant business logic, no menu, no order logic.
- */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -54,18 +40,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenRevocationService tokenRevocationService;
 
-    /**
-     * Authenticates the user and issues access + refresh tokens.
-     *
-     * Flow:
-     * 1. AuthenticationManager authenticates email/password via DaoAuthenticationProvider.
-     * 2. UserPrincipal extracted from authenticated principal.
-     * 3. Account active check (defence-in-depth; DaoAuthenticationProvider also checks isEnabled).
-     * 4. Revoke all previous refresh tokens (single-session policy on login).
-     * 5. Generate RS256 access token.
-     * 6. Generate opaque refresh token and persist.
-     * 7. Return AuthResponse.
-     */
+
     public AuthResponse login(LoginRequest request) {
         String email = request.getEmail().trim().toLowerCase();
 
@@ -75,13 +50,10 @@ public class AuthService {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         User user = principal.getUser();
 
-        // Defence-in-depth: active check (Spring Security's isEnabled() already covers this
-        // but we want an explicit domain exception for clear error messaging)
         if (!user.isActive()) {
             throw new AccountInactiveException("Your account has been deactivated. Please contact support.");
         }
 
-        // Revoke any existing refresh tokens (login = fresh session)
         refreshTokenRepository.revokeAllByUser(user);
 
         String accessToken = jwtService.generateAccessToken(
@@ -95,13 +67,7 @@ public class AuthService {
         return buildAuthResponse(accessToken, refreshToken.getToken(), user);
     }
 
-    /**
-     * Validates a refresh token and issues a new access token + rotated refresh token.
-     *
-     * Rotation strategy:
-     * - Revoke old token, issue new one.
-     * - If old token is already revoked (reuse attack), terminate ALL sessions.
-     */
+
     public AuthResponse refreshToken(RefreshTokenRequest request) {
         String tokenStr = request.getRefreshToken();
 
@@ -110,9 +76,7 @@ public class AuthService {
 
         User user = refreshToken.getUser();
 
-        // Detect refresh-token reuse attack
         if (refreshToken.isRevoked()) {
-            // Terminate all sessions for this user immediately
             refreshTokenRepository.revokeAllByUser(user);
             tokenRevocationService.revokeUserTokens(user.getId(), Instant.now());
             log.warn("Refresh token reuse detected for userId: {}. All sessions terminated.", user.getId());
@@ -126,12 +90,10 @@ public class AuthService {
             throw new IllegalArgumentException("Refresh token has expired. Please log in again.");
         }
 
-        // Verify user is still active
         if (!user.isActive()) {
             throw new AccountInactiveException("Your account has been deactivated.");
         }
 
-        // Rotate: revoke old, issue new
         String newRefreshTokenStr = jwtService.generateRefreshTokenString();
         refreshToken.setRevoked(true);
         refreshToken.setReplacedByToken(newRefreshTokenStr);

@@ -11,14 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-/**
- * UserDetailsService for LavaFlow.
- * ADAPTED from College Bridge CustomUserDetailsService:
- * - Removed student/teacher profile lookups and institutionId loading.
- * - Provides two load paths:
- *   loadUserByUsername(email)  — used by DaoAuthenticationProvider at login.
- *   loadByUserId(UUID)         — used by JwtAuthenticationFilter (JWT sub is userId UUID).
- */
+
 @Service
 @Primary
 @Transactional(readOnly = true)

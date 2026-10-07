@@ -11,10 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
- * Returns HTTP 403 JSON when an authenticated user lacks required role.
- * REUSED from College Bridge JwtAccessDeniedHandler — pure infrastructure.
- */
+
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 

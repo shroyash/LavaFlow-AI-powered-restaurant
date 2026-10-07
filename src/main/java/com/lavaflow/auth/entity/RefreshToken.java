@@ -33,11 +33,6 @@ public class RefreshToken extends BaseEntity {
     @Column(nullable = false)
     private boolean revoked = false;
 
-    /**
-     * Populated when this token is rotated.
-     * Useful for detecting refresh-token reuse attacks: if an old (revoked) token is presented,
-     * we can revoke all sessions for the user immediately.
-     */
     @Column(name = "replaced_by_token", length = 700)
     private String replacedByToken;
 

@@ -9,14 +9,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Redis-backed token revocation service.
- * REUSED from College Bridge UserTokenRevocationService:
- * - Same Redis key/value strategy (revoked-at epoch seconds).
- * - Same TTL (access token lifetime).
- * - Long userId → UUID userId.
- * - Key prefix: "lavaflow:token:revoked-at:{userId}"
- */
 @Service
 @RequiredArgsConstructor
 public class RedisTokenRevocationService implements TokenRevocationService {

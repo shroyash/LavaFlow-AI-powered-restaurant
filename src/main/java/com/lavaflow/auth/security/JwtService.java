@@ -14,17 +14,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
-/**
- * JWT service — RS256 asymmetric signing.
- * ADAPTED from College Bridge JwtService: same library and signing approach,
- * claims simplified to sub/role/restaurantId (no institutionId, no name, no roles list).
- *
- * JWT claims:
- *   sub          = user UUID (string)
- *   role         = UserRole name
- *   restaurantId = UUID string, absent when null (SUPER_ADMIN, unscoped CUSTOMER)
- *   iat, exp, jti, iss, aud
- */
+
 @Service
 public class JwtService {
 
@@ -64,7 +54,7 @@ public class JwtService {
         return builder.compact();
     }
 
-    /** Cryptographically random 64-character hex opaque refresh token string. */
+
     public String generateRefreshTokenString() {
         byte[] randomBytes = new byte[32];
         secureRandom.nextBytes(randomBytes);
@@ -75,10 +65,7 @@ public class JwtService {
         return sb.toString();
     }
 
-    /**
-     * Parses and RSA-signature-verifies a JWT.
-     * Throws ExpiredJwtException or JwtException on failure.
-     */
+
     public Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(publicKey)

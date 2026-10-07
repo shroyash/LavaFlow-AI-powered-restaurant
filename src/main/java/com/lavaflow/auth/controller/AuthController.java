@@ -14,16 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Authentication endpoints for LavaFlow.
- *
- * ADAPTED from College Bridge AuthController:
- * - login, refresh, logout endpoints reused and adapted.
- * - Path updated to /api/v1/auth/** (versioned).
- * - register endpoint NOT included (LavaFlow user provisioning is admin-driven).
- * - Logout accepts refreshToken in request body (not in Authorization header)
- *   to allow explicit token-scoped logout without requiring a valid access token.
- */
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication", description = "Login, token refresh, and logout")

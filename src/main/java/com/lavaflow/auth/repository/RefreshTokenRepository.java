@@ -16,9 +16,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
 
     Optional<RefreshToken> findByToken(String token);
 
-    /**
-     * Bulk-revoke all active refresh tokens for a user (used at login and logout).
-     */
     @Modifying
     @Query("UPDATE RefreshToken r SET r.revoked = true WHERE r.user = :user AND r.revoked = false")
     void revokeAllByUser(@Param("user") User user);

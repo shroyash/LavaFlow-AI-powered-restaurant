@@ -6,10 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
 
-/**
- * JWT configuration properties bound from application.yml "app.jwt" prefix.
- * REUSED from College Bridge — pure infrastructure, zero domain coupling.
- */
+
 @Configuration
 @ConfigurationProperties(prefix = "app.jwt")
 @Data

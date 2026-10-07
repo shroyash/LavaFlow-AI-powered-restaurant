@@ -36,10 +36,6 @@ public class User extends BaseEntity {
     @Column(name = "role", nullable = false, length = 50)
     private UserRole role = UserRole.CUSTOMER;
 
-    /**
-     * NULL  →  SUPER_ADMIN or unscoped CUSTOMER
-     * non-NULL  →  user belongs to exactly one restaurant tenant
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;

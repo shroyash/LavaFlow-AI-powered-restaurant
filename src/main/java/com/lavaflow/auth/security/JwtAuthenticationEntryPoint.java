@@ -11,10 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
- * Returns HTTP 401 JSON for unauthenticated requests.
- * REUSED from College Bridge JwtAuthenticationEntryPoint — pure infrastructure.
- */
+
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

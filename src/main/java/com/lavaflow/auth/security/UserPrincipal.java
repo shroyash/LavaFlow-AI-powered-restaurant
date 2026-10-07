@@ -11,13 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 
-/**
- * Spring Security principal for LavaFlow.
- * ADAPTED from College Bridge UserPrincipal:
- * - Removed: studentId, teacherId, institutionId
- * - Added: restaurantId (UUID tenant key)
- * - isEnabled() checks is_active boolean instead of soft-delete flag
- */
+
 @Getter
 public class UserPrincipal implements UserDetails {
 

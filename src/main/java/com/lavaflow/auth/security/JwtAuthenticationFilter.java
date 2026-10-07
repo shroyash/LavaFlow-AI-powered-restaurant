@@ -23,23 +23,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * JWT authentication filter for LavaFlow.
- * ADAPTED from College Bridge JwtAuthenticationFilter:
- * - Same OncePerRequestFilter structure and claim-validation pattern.
- * - Removed: TenantContext, InstitutionStatus checks.
- * - Added: restaurantId consistency check (tenant isolation).
- * - Redis revocation check reused.
- *
- * Security invariants (all checked before populating SecurityContext):
- * 1. RS256 signature verified
- * 2. sub resolves to an existing user
- * 3. role in JWT matches DB (prevents stale role tokens)
- * 4. restaurantId in JWT matches DB (prevents tenant forgery)
- * 5. SUPER_ADMIN may have null restaurantId
- * 6. User must be active
- * 7. Token must not be Redis-revoked
- */
+
 @Component
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

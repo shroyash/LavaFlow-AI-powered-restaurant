@@ -26,14 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Spring Security configuration for LavaFlow.
- * ADAPTED from College Bridge SecurityConfig:
- * - BCrypt, DaoAuthenticationProvider, stateless JWT, CORS all reused.
- * - CSRF disabled: correct for stateless REST API (no session/cookie auth).
- * - Public endpoints updated to LavaFlow versioned paths.
- * - CB domain-specific URL rules removed; fine-grained auth handled by @PreAuthorize.
- */
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
