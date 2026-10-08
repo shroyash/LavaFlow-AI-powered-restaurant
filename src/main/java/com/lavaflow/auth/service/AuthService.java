@@ -12,7 +12,6 @@ import com.lavaflow.auth.security.JwtProperties;
 import com.lavaflow.auth.security.JwtService;
 import com.lavaflow.auth.security.UserDetailsServiceImpl;
 import com.lavaflow.auth.security.UserPrincipal;
-import com.lavaflow.common.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -115,10 +114,7 @@ public class AuthService {
         return buildAuthResponse(accessToken, newRefreshTokenStr, user);
     }
 
-    /**
-     * Logs out the user by revoking the refresh token and invalidating all outstanding
-     * access tokens via Redis.
-     */
+
     public void logout(String refreshTokenStr) {
         if (refreshTokenStr == null || refreshTokenStr.isBlank()) {
             return;
@@ -132,7 +128,7 @@ public class AuthService {
         });
     }
 
-    // ─── Private helpers ─────────────────────────────────────────────────────────
+    // Private helpers
 
     private RefreshToken createRefreshToken(User user) {
         RefreshToken rt = new RefreshToken();

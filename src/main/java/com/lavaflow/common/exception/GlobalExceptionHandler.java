@@ -15,15 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 
-/**
- * Global exception handler for LavaFlow.
- *
- * ADAPTED from College Bridge AuthExceptionHandler:
- * - Core structure (RestControllerAdvice, consistent ApiResponse wrapping) reused.
- * - Removed CB-specific handlers: Institution*, OTP*, ProfileImage*, BulkTransfer*.
- * - Added: DisabledException, LockedException (Spring Security exceptions for inactive users).
- * - Scope: global (all packages), not scoped to one package.
- */
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {

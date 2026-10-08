@@ -15,15 +15,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
-/**
- * Loads RSA-2048 key pair from PEM files.
- * REUSED from College Bridge RSAKeyConfig — pure Java security infrastructure.
- *
- * Key generation:
- *   openssl genrsa -out raw.pem 2048
- *   openssl pkcs8 -topk8 -nocrypt -in raw.pem -out private_key.pem
- *   openssl rsa -in raw.pem -pubout -out public_key.pem
- */
+
 @Configuration
 public class RsaKeyConfig {
 

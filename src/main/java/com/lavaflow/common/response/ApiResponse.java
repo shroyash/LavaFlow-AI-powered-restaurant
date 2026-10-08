@@ -5,14 +5,7 @@ import lombok.Getter;
 
 import java.util.List;
 
-/**
- * Standard API response envelope for LavaFlow.
- * All endpoints return this wrapper to ensure consistent shape.
- *
- * ADAPTED from College Bridge ApiResponse:
- * - Same envelope structure (success, message, data, errors).
- * - Errors changed from FieldError list to generic String list for simplicity.
- */
+
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {

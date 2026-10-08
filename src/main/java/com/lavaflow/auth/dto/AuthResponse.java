@@ -3,10 +3,7 @@ package com.lavaflow.auth.dto;
 import lombok.Builder;
 import lombok.Data;
 
-/**
- * Authentication response returned on successful login or token refresh.
- * Does NOT include password hash or sensitive user data.
- */
+
 @Data
 @Builder
 public class AuthResponse {
