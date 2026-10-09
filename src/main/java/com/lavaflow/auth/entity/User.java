@@ -42,4 +42,7 @@ public class User extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
+
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = false;
 }

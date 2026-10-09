@@ -42,7 +42,7 @@ class JwtServiceTest {
         UUID userId = UUID.randomUUID();
         UUID restaurantId = UUID.randomUUID();
 
-        String token = jwtService.generateAccessToken(userId, UserRole.RESTAURANT_ADMIN, restaurantId);
+        String token = jwtService.generateAccessToken(userId, UserRole.RESTAURANT_OWNER, restaurantId);
 
         assertThat(token).isNotBlank();
         assertThat(token.split("\\.")).hasSize(3); // header.payload.signature

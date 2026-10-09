@@ -8,6 +8,7 @@ import com.lavaflow.auth.entity.RefreshToken;
 import com.lavaflow.auth.entity.User;
 import com.lavaflow.auth.exception.AccountInactiveException;
 import com.lavaflow.auth.exception.EmailAlreadyExistsException;
+import com.lavaflow.auth.mapper.AuthMapper;
 import com.lavaflow.auth.repository.RefreshTokenRepository;
 import com.lavaflow.auth.repository.UserRepository;
 import com.lavaflow.auth.security.JwtProperties;
@@ -40,6 +41,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenRevocationService tokenRevocationService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthMapper authMapper;
+    private final EmailVerificationService emailVerificationService;
+    private final AccountAccessValidator accountAccessValidator;
 
     @Transactional
     public AuthResponse registerCustomer(RegisterCustomerRequest request) {
@@ -50,7 +54,7 @@ public class AuthService {
             throw new EmailAlreadyExistsException();
         }
 
-        User user = new User();
+        User user = authMapper.toUser(request);
         user.setEmail(email);
         user.setFullName(request.getFullName().trim());
         user.setPhone(normalizePhone(request.getPhone()));
@@ -58,8 +62,11 @@ public class AuthService {
         user.setRole(UserRole.CUSTOMER);
         user.setRestaurant(null);
         user.setActive(true);
+        user.setEmailVerified(false);
 
         user = userRepository.saveAndFlush(user);
+
+        emailVerificationService.sendVerification(user);
 
         return issueTokens(user);
     }
@@ -75,6 +82,8 @@ public class AuthService {
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         User user = principal.getUser();
+
+        accountAccessValidator.validate(user);
 
         if (!user.isActive()) {
             throw new AccountInactiveException(
@@ -143,7 +152,9 @@ public class AuthService {
                 user.getId(), user.getRole(), getRestaurantId(user)
         );
 
-        return buildAuthResponse(accessToken, newRefreshTokenStr, user);
+        return authMapper.toAuthResponse(
+                user, accessToken, newRefreshTokenStr, jwtService.getAccessTokenExpirationSeconds()
+        );
     }
 
     @Transactional
@@ -171,7 +182,9 @@ public class AuthService {
                 user.getId(), user.getRole(), getRestaurantId(user)
         );
         RefreshToken refreshToken = createRefreshToken(user);
-        return buildAuthResponse(accessToken, refreshToken.getToken(), user);
+        return authMapper.toAuthResponse(
+                user, accessToken, refreshToken.getToken(), jwtService.getAccessTokenExpirationSeconds()
+        );
     }
 
     private RefreshToken createRefreshToken(User user) {
@@ -187,27 +200,6 @@ public class AuthService {
 
     private UUID getRestaurantId(User user) {
         return user.getRestaurant() != null ? user.getRestaurant().getId() : null;
-    }
-
-    private AuthResponse buildAuthResponse(String accessToken, String refreshTokenStr, User user) {
-
-        UUID restaurantId = getRestaurantId(user);
-
-        AuthResponse.UserInfo userInfo = AuthResponse.UserInfo.builder()
-                .userId(user.getId().toString())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .role(user.getRole().name())
-                .restaurantId(restaurantId != null ? restaurantId.toString() : null)
-                .build();
-
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshTokenStr)
-                .tokenType("Bearer")
-                .expiresIn(jwtService.getAccessTokenExpirationSeconds())
-                .user(userInfo)
-                .build();
     }
 
     private String normalizeEmail(String email) {
