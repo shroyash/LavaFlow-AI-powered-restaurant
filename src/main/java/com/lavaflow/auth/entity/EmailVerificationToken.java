@@ -1,5 +1,6 @@
 package com.lavaflow.auth.entity;
 
+
 import com.lavaflow.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

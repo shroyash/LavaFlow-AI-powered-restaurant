@@ -15,10 +15,10 @@ public class EmailVerificationMailListener {
 
     private final EmailSender emailSender;
 
-    @Value("${lavaflow.frontend.base-url}")
+    @Value("${app.frontend.base-url}")
     private String frontendBaseUrl;
 
-    @Value("${lavaflow.email-verification.expiry-hours:24}")
+    @Value("${app.email-verification.expiry-hours:24}")
     private long expiryHours;
 
     @Async

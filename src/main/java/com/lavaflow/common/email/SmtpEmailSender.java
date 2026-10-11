@@ -15,7 +15,7 @@ public class SmtpEmailSender implements EmailSender {
 
     private final JavaMailSender mailSender;
 
-    @Value("${lavaflow.mail.from}")
+    @Value("${app.mail.from}")
     private String from;
 
     @Override

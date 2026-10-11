@@ -1,0 +1,25 @@
+                   List of relations
+ Schema |           Name            | Type  |  Owner   
+--------+---------------------------+-------+----------
+ public | ai_conversations          | table | postgres
+ public | ai_messages               | table | postgres
+ public | customer_addresses        | table | postgres
+ public | deliveries                | table | postgres
+ public | email_verification_tokens | table | postgres
+ public | feedbacks                 | table | postgres
+ public | flyway_schema_history     | table | postgres
+ public | inventory_items           | table | postgres
+ public | kitchen_orders            | table | postgres
+ public | menu_categories           | table | postgres
+ public | menu_items                | table | postgres
+ public | order_items               | table | postgres
+ public | orders                    | table | postgres
+ public | outlets                   | table | postgres
+ public | payments                  | table | postgres
+ public | refresh_tokens            | table | postgres
+ public | restaurant_documents      | table | postgres
+ public | restaurants               | table | postgres
+ public | riders                    | table | postgres
+ public | users                     | table | postgres
+(20 rows)
+

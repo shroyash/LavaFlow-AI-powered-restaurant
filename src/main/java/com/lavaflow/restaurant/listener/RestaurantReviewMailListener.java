@@ -15,7 +15,7 @@ public class RestaurantReviewMailListener {
 
     private final EmailSender emailSender;
 
-    @Value("${lavaflow.frontend.base-url}")
+    @Value("${app.frontend.base-url}")
     private String frontendBaseUrl;
 
     @Async

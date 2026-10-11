@@ -8,6 +8,9 @@ import com.lavaflow.restaurant.entity.RestaurantDocument;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = RestaurantMapper.class)

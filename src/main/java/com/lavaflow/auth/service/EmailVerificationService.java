@@ -35,7 +35,7 @@ public class EmailVerificationService {
 
     private final SecureRandom secureRandom = new SecureRandom();
 
-    @Value("${lavaflow.email-verification.expiry-hours:24}")
+    @Value("${app.email-verification.expiry-hours:24}")
     private long expiryHours;
 
     @Transactional
