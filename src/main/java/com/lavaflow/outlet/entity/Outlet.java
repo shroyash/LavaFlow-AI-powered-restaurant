@@ -3,7 +3,14 @@ package com.lavaflow.outlet.entity;
 import com.lavaflow.common.entity.BaseEntity;
 import com.lavaflow.common.enums.OutletStatus;
 import com.lavaflow.restaurant.entity.Restaurant;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,14 +24,14 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class Outlet extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
     @Column(name = "name", nullable = false, length = 150)
     private String name;
 
-    @Column(name = "address", columnDefinition = "TEXT")
+    @Column(name = "address", nullable = false, columnDefinition = "TEXT")
     private String address;
 
     @Column(name = "latitude", precision = 10, scale = 7)
@@ -36,7 +43,10 @@ public class Outlet extends BaseEntity {
     @Column(name = "phone", length = 30)
     private String phone;
 
+    @Column(name = "delivery_radius_km", precision = 5, scale = 2)
+    private BigDecimal deliveryRadiusKm;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
-    private OutletStatus status = OutletStatus.OPEN;
+    private OutletStatus status = OutletStatus.ACTIVE;
 }

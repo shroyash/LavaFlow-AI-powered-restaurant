@@ -17,6 +17,7 @@ public class OutletResponse {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private String phone;
+    private BigDecimal deliveryRadiusKm;
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

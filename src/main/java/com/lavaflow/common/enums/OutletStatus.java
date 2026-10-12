@@ -5,5 +5,6 @@ public enum OutletStatus {
     CLOSED,
     BUSY,
     TEMPORARILY_UNAVAILABLE,
-    INACTIVE
+    INACTIVE,
+    ACTIVE,
 }

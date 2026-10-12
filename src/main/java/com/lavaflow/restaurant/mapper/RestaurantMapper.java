@@ -9,25 +9,18 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RestaurantMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "logoUrl", ignore = true)
     @Mapping(target = "status", constant = "ACTIVE")
     Restaurant toEntity(CreateRestaurantRequest request);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "logoUrl", ignore = true)
+    @Mapping(target = "status", ignore = true)
     void updateEntity(UpdateRestaurantRequest request, @MappingTarget Restaurant restaurant);
 
     RestaurantResponse toResponse(Restaurant restaurant);
-
-    default LocalDateTime map(Instant instant) {
-        if (instant == null) {
-            return null;
-        }
-        return LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
-    }
 }

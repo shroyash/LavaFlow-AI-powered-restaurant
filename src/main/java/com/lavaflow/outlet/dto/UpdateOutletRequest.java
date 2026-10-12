@@ -35,4 +35,8 @@ public class UpdateOutletRequest {
 
     @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Invalid phone number")
     private String phone;
+
+    @DecimalMin(value = "0.5", message = "Delivery radius must be at least 0.5 km")
+    @DecimalMax(value = "100.0", message = "Delivery radius cannot exceed 100 km")
+    private BigDecimal deliveryRadiusKm;
 }

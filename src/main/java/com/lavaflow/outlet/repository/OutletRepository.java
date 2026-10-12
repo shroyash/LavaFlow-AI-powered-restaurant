@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +18,6 @@ public interface OutletRepository extends JpaRepository<Outlet, UUID> {
     Page<Outlet> findByRestaurantIdAndStatus(UUID restaurantId, OutletStatus status, Pageable pageable);
 
     Optional<Outlet> findByIdAndRestaurantId(UUID id, UUID restaurantId);
+
+    List<Outlet> findByRestaurantIdAndStatusIn(UUID restaurantId, Collection<OutletStatus> statuses);
 }

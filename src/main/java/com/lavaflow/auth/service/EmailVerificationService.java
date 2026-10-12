@@ -12,14 +12,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.HexFormat;
 import java.util.Locale;
 
 @Service
@@ -27,27 +21,25 @@ import java.util.Locale;
 public class EmailVerificationService {
 
     private static final Duration RESEND_COOLDOWN = Duration.ofSeconds(60);
-    private static final int TOKEN_BYTES = 32;
 
     private final EmailVerificationTokenRepository tokenRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final SecureTokenGenerator tokenGenerator;
 
-    private final SecureRandom secureRandom = new SecureRandom();
-
-    @Value("${app.email-verification.expiry-hours:24}")
+    @Value("${lavaflow.email-verification.expiry-hours:24}")
     private long expiryHours;
 
     @Transactional
     public void sendVerification(User user) {
         tokenRepository.deleteByUser(user);
 
-        String rawToken = generateToken();
+        String rawToken = tokenGenerator.generate();
         LocalDateTime now = LocalDateTime.now();
 
         EmailVerificationToken token = new EmailVerificationToken();
         token.setUser(user);
-        token.setTokenHash(hash(rawToken));
+        token.setTokenHash(tokenGenerator.hash(rawToken));
         token.setIssuedAt(now);
         token.setExpiresAt(now.plusHours(expiryHours));
         tokenRepository.save(token);
@@ -59,7 +51,7 @@ public class EmailVerificationService {
 
     @Transactional
     public void verifyEmail(String rawToken) {
-        EmailVerificationToken token = tokenRepository.findByTokenHash(hash(rawToken.trim()))
+        EmailVerificationToken token = tokenRepository.findByTokenHash(tokenGenerator.hash(rawToken.trim()))
                 .orElseThrow(InvalidEmailVerificationTokenException::new);
 
         if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -85,20 +77,5 @@ public class EmailVerificationService {
         return tokenRepository.findTopByUserOrderByIssuedAtDesc(user)
                 .map(token -> token.getIssuedAt().isAfter(LocalDateTime.now().minus(RESEND_COOLDOWN)))
                 .orElse(false);
-    }
-
-    private String generateToken() {
-        byte[] bytes = new byte[TOKEN_BYTES];
-        secureRandom.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-    }
-
-    private String hash(String rawToken) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return HexFormat.of().formatHex(digest.digest(rawToken.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 not available", e);
-        }
     }
 }

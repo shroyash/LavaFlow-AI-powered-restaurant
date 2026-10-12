@@ -1,6 +1,7 @@
 package com.lavaflow.menu.service;
 
 import com.lavaflow.common.exception.ConflictException;
+import com.lavaflow.common.storage.PublicImageStorage;
 import com.lavaflow.menu.dto.CreateMenuItemRequest;
 import com.lavaflow.menu.dto.MenuItemResponse;
 import com.lavaflow.menu.dto.UpdateMenuItemRequest;
@@ -32,6 +33,7 @@ public class MenuItemService {
     private final MenuCategoryRepository menuCategoryRepository;
     private final RestaurantRepository restaurantRepository;
     private final MenuItemMapper menuItemMapper;
+    private final PublicImageStorage publicImageStorage;
 
     @Transactional
     public MenuItemResponse createItem(UUID restaurantId, CreateMenuItemRequest request) {
@@ -95,6 +97,7 @@ public class MenuItemService {
         try {
             menuItemRepository.delete(item);
             menuItemRepository.flush();
+            publicImageStorage.deleteOnCommit(item.getImageUrl());
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException(
                     "This item is referenced by existing orders or stock records. Mark it as unavailable instead."
