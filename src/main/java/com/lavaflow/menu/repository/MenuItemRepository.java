@@ -1,5 +1,8 @@
 package com.lavaflow.menu.repository;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import java.util.List;
 import com.lavaflow.menu.entity.MenuItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,4 +28,7 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, UUID>, JpaSp
     boolean existsByCategoryIdAndNameIgnoreCase(UUID categoryId, String name);
 
     boolean existsByCategoryIdAndNameIgnoreCaseAndIdNot(UUID categoryId, String name, UUID id);
+
+    @Query("select distinct m.restaurant.id from MenuItem m where m.available = true and lower(m.name) like :pattern")
+    List<UUID> findRestaurantIdsByAvailableItemName(@Param("pattern") String pattern);
 }
