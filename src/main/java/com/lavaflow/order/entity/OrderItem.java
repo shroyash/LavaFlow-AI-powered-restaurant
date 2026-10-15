@@ -2,7 +2,12 @@ package com.lavaflow.order.entity;
 
 import com.lavaflow.common.entity.BaseEntity;
 import com.lavaflow.menu.entity.MenuItem;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +21,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class OrderItem extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
@@ -31,7 +36,7 @@ public class OrderItem extends BaseEntity {
     private BigDecimal unitPrice;
 
     @Column(name = "quantity", nullable = false)
-    private Integer quantity;
+    private int quantity;
 
     @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
