@@ -18,7 +18,7 @@ import java.util.UUID;
 public class OrderCancellationService {
 
     private static final Set<OrderStatus> CANCELLABLE_STATUSES =
-            Set.of(OrderStatus.CREATED, OrderStatus.PENDING_KITCHEN);
+            Set.of(OrderStatus.CREATED, OrderStatus.KITCHEN_PENDING);
 
     private final OrderRepository orderRepository;
     private final OrderStatusService orderStatusService;

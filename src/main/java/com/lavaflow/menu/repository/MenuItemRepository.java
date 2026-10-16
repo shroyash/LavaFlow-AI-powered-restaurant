@@ -31,4 +31,10 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, UUID>, JpaSp
 
     @Query("select distinct m.restaurant.id from MenuItem m where m.available = true and lower(m.name) like :pattern")
     List<UUID> findRestaurantIdsByAvailableItemName(@Param("pattern") String pattern);
+
+    @EntityGraph(attributePaths = "category")
+    List<MenuItem> findByRestaurantIdAndIdIn(
+            UUID restaurantId,
+            List<UUID> ids
+    );
 }

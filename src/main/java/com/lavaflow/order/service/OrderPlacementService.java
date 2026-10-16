@@ -124,9 +124,11 @@ public class OrderPlacementService {
         order.setDiscount(BigDecimal.ZERO);
         order.setTotalAmount(subtotal.add(deliveryFee));
 
-        order.setStatus(request.getPaymentMethod() == PaymentMethod.COD
-                ? OrderStatus.PENDING_KITCHEN
-                : OrderStatus.CREATED);
+        order.setStatus(
+                request.getPaymentMethod() == PaymentMethod.CASH_ON_DELIVERY
+                        ? OrderStatus.PLACED
+                        : OrderStatus.PAYMENT_PENDING
+        );
 
         Order saved = orderRepository.saveAndFlush(order);
 
