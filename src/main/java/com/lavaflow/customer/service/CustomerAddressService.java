@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,7 +53,7 @@ public class CustomerAddressService {
 
         boolean makeDefault = existingCount == 0 || Boolean.TRUE.equals(request.getDefaultAddress());
         if (makeDefault) {
-            customerAddressRepository.clearDefaults(customerId, LocalDateTime.now());
+            customerAddressRepository.clearDefaults(customerId, Instant.now());
         }
         address.setDefaultAddress(makeDefault);
 
@@ -75,7 +75,7 @@ public class CustomerAddressService {
         address.setAddressLine(request.getAddressLine().trim());
 
         if (Boolean.TRUE.equals(request.getDefaultAddress()) && !address.isDefaultAddress()) {
-            customerAddressRepository.clearDefaults(customerId, LocalDateTime.now());
+            customerAddressRepository.clearDefaults(customerId, Instant.now());
             address.setDefaultAddress(true);
         }
 

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,7 +23,7 @@ public class InventoryReservationService {
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void reserveAll(UUID outletId, List<StockLine> lines) {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         mergeAndSort(lines).forEach((menuItemId, quantity) -> {
             if (inventoryItemRepository.reserve(outletId, menuItemId, quantity, now) == 0) {
@@ -35,7 +35,7 @@ public class InventoryReservationService {
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void releaseAll(UUID outletId, List<StockLine> lines) {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         mergeAndSort(lines).forEach((menuItemId, quantity) -> {
             if (inventoryItemRepository.release(outletId, menuItemId, quantity, now) == 0) {
@@ -46,7 +46,7 @@ public class InventoryReservationService {
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void consumeAll(UUID outletId, List<StockLine> lines) {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         mergeAndSort(lines).forEach((menuItemId, quantity) -> {
             if (inventoryItemRepository.consume(outletId, menuItemId, quantity, now) == 0) {

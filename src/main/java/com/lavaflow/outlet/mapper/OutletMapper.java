@@ -1,5 +1,6 @@
 package com.lavaflow.outlet.mapper;
 
+import com.lavaflow.common.mapper.DateTimeMapper;
 import com.lavaflow.outlet.dto.CreateOutletRequest;
 import com.lavaflow.outlet.dto.OutletResponse;
 import com.lavaflow.outlet.dto.UpdateOutletRequest;
@@ -9,7 +10,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = DateTimeMapper.class)
 public interface OutletMapper {
 
     @Mapping(target = "id", ignore = true)

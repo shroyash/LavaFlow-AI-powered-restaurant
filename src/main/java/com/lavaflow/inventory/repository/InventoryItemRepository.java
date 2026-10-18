@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +50,7 @@ public interface InventoryItemRepository
             @Param("restaurantId") UUID restaurantId,
             @Param("quantity") int quantity,
             @Param("threshold") int threshold,
-            @Param("now") LocalDateTime now
+            @Param("now") Instant now
     );
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
@@ -64,7 +64,7 @@ public interface InventoryItemRepository
             @Param("id") UUID id,
             @Param("restaurantId") UUID restaurantId,
             @Param("delta") int delta,
-            @Param("now") LocalDateTime now
+            @Param("now") Instant now
     );
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
@@ -85,7 +85,7 @@ public interface InventoryItemRepository
             @Param("outletId") UUID outletId,
             @Param("menuItemId") UUID menuItemId,
             @Param("quantity") int quantity,
-            @Param("now") LocalDateTime now
+            @Param("now") Instant now
     );
 
     @Modifying(flushAutomatically = true)
@@ -99,8 +99,9 @@ public interface InventoryItemRepository
             @Param("outletId") UUID outletId,
             @Param("menuItemId") UUID menuItemId,
             @Param("quantity") int quantity,
-            @Param("now") LocalDateTime now
+            @Param("now") Instant now
     );
+
 
     @Modifying(flushAutomatically = true)
     @Query("""
@@ -115,7 +116,7 @@ public interface InventoryItemRepository
             @Param("outletId") UUID outletId,
             @Param("menuItemId") UUID menuItemId,
             @Param("quantity") int quantity,
-            @Param("now") LocalDateTime now
+            @Param("now") Instant now
     );
 
     @Query("""

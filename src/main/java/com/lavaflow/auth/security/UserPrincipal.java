@@ -29,7 +29,17 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        if (role == null) {
+            return Collections.emptyList();
+        }
+        java.util.List<GrantedAuthority> authorities = new java.util.ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        if (role == UserRole.RESTAURANT_OWNER) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_RESTAURANT_ADMIN"));
+        } else if (role == UserRole.OUTLET_MANAGER) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_RESTAURANT_STAFF"));
+        }
+        return authorities;
     }
 
     @Override

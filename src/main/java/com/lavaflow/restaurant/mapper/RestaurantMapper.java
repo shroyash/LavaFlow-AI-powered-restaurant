@@ -1,5 +1,6 @@
 package com.lavaflow.restaurant.mapper;
 
+import com.lavaflow.common.mapper.DateTimeMapper;
 import com.lavaflow.restaurant.dto.CreateRestaurantRequest;
 import com.lavaflow.restaurant.dto.RestaurantResponse;
 import com.lavaflow.restaurant.dto.UpdateRestaurantRequest;
@@ -9,7 +10,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = DateTimeMapper.class)
 public interface RestaurantMapper {
 
     @Mapping(target = "id", ignore = true)

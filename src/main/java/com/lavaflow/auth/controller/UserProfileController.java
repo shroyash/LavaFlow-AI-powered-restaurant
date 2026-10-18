@@ -1,10 +1,10 @@
 package com.lavaflow.auth.controller;
 
+import com.lavaflow.auth.dto.UpdateProfileRequest;
+import com.lavaflow.auth.dto.UserProfileResponse;
 import com.lavaflow.auth.security.UserPrincipal;
+import com.lavaflow.auth.service.UserProfileService;
 import com.lavaflow.common.response.ApiResponse;
-import com.lavaflow.user.dto.UpdateProfileRequest;
-import com.lavaflow.user.dto.UserProfileResponse;
-import com.lavaflow.user.service.UserProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

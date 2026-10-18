@@ -1,10 +1,10 @@
 package com.lavaflow.auth.service;
 
+import com.lavaflow.auth.dto.UpdateProfileRequest;
+import com.lavaflow.auth.dto.UserProfileResponse;
 import com.lavaflow.auth.entity.User;
+import com.lavaflow.auth.mapper.UserProfileMapper;
 import com.lavaflow.auth.repository.UserRepository;
-import com.lavaflow.user.dto.UpdateProfileRequest;
-import com.lavaflow.user.dto.UserProfileResponse;
-import com.lavaflow.user.mapper.UserProfileMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,6 @@
 package com.lavaflow.customer.mapper;
 
+import com.lavaflow.common.mapper.DateTimeMapper;
 import com.lavaflow.customer.dto.CreateCustomerAddressRequest;
 import com.lavaflow.customer.dto.CustomerAddressResponse;
 import com.lavaflow.customer.dto.UpdateCustomerAddressRequest;
@@ -9,7 +10,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = DateTimeMapper.class)
 public interface CustomerAddressMapper {
 
     @Mapping(target = "id", ignore = true)

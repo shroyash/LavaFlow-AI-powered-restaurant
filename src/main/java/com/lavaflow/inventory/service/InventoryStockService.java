@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -30,7 +30,7 @@ public class InventoryStockService {
                 restaurantId,
                 request.getQuantity(),
                 request.getLowStockThreshold(),
-                LocalDateTime.now()
+                Instant.now()
         );
 
         if (updated == 0) {
@@ -46,7 +46,7 @@ public class InventoryStockService {
     public InventoryResponse adjustStock(UUID restaurantId, UUID inventoryId, int delta) {
         int reserved = findOwned(restaurantId, inventoryId).getReservedQuantity();
 
-        int updated = inventoryItemRepository.adjustQuantity(inventoryId, restaurantId, delta, LocalDateTime.now());
+        int updated = inventoryItemRepository.adjustQuantity(inventoryId, restaurantId, delta, Instant.now());
 
         if (updated == 0) {
             throw new ConflictException(

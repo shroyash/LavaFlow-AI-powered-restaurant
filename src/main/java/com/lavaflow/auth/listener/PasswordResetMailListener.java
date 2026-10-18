@@ -15,7 +15,7 @@ public class PasswordResetMailListener {
 
     private final EmailSender emailSender;
 
-    @Value("${lavaflow.frontend.base-url}")
+    @Value("${app.frontend.base-url:${lavaflow.frontend.base-url:https://app.lavaflow.com}}")
     private String frontendBaseUrl;
 
     @Value("${lavaflow.password-reset.expiry-minutes:30}")

@@ -1,5 +1,6 @@
 package com.lavaflow.menu.mapper;
 
+import com.lavaflow.common.mapper.DateTimeMapper;
 import com.lavaflow.menu.dto.CreateMenuCategoryRequest;
 import com.lavaflow.menu.dto.MenuCategoryResponse;
 import com.lavaflow.menu.dto.UpdateMenuCategoryRequest;
@@ -9,7 +10,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = DateTimeMapper.class)
 public interface MenuCategoryMapper {
 
     @Mapping(target = "id", ignore = true)

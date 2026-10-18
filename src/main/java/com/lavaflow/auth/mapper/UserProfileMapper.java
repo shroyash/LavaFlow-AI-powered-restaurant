@@ -1,14 +1,15 @@
 package com.lavaflow.auth.mapper;
 
+import com.lavaflow.auth.dto.UpdateProfileRequest;
+import com.lavaflow.auth.dto.UserProfileResponse;
 import com.lavaflow.auth.entity.User;
-import com.lavaflow.user.dto.UpdateProfileRequest;
-import com.lavaflow.user.dto.UserProfileResponse;
+import com.lavaflow.common.mapper.DateTimeMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = DateTimeMapper.class)
 public interface UserProfileMapper {
 
     @Mapping(target = "id", ignore = true)

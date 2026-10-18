@@ -63,3 +63,11 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+lavaflow:
+  frontend:
+    base-url: ${FRONTEND_BASE_URL:https://app.lavaflow.com}
+  kitchen:
+    accept-timeout-minutes: ${KITCHEN_ACCEPT_TIMEOUT_MINUTES:10}
+    stream:
+      ticket-secret: ${KITCHEN_STREAM_TICKET_SECRET:lavaflow-kitchen-stream-default-hmac-secret-key-32bytes}

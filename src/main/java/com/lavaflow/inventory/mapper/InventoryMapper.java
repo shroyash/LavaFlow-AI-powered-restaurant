@@ -1,5 +1,6 @@
 package com.lavaflow.inventory.mapper;
 
+import com.lavaflow.common.mapper.DateTimeMapper;
 import com.lavaflow.inventory.dto.CreateInventoryRequest;
 import com.lavaflow.inventory.dto.InventoryResponse;
 import com.lavaflow.inventory.entity.InventoryItem;
@@ -7,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = DateTimeMapper.class)
 public interface InventoryMapper {
 
     @Mapping(target = "id", ignore = true)

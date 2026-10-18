@@ -1,12 +1,13 @@
 package com.lavaflow.customer.mapper;
 
 import com.lavaflow.auth.entity.User;
+import com.lavaflow.common.mapper.DateTimeMapper;
 import com.lavaflow.customer.dto.CustomerProfileResponse;
 import com.lavaflow.customer.entity.CustomerAddress;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = CustomerAddressMapper.class)
+@Mapper(componentModel = "spring", uses = {CustomerAddressMapper.class, DateTimeMapper.class})
 public interface CustomerProfileMapper {
 
     @Mapping(target = "userId", source = "customer.id")

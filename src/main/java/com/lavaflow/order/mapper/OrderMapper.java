@@ -1,5 +1,6 @@
 package com.lavaflow.order.mapper;
 
+import com.lavaflow.common.mapper.DateTimeMapper;
 import com.lavaflow.order.dto.OrderItemResponse;
 import com.lavaflow.order.dto.OrderResponse;
 import com.lavaflow.order.dto.OrderSummaryResponse;
@@ -9,7 +10,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = DateTimeMapper.class)
 public interface OrderMapper {
 
     @Mapping(target = "restaurantId", source = "restaurant.id")
