@@ -1,20 +1,16 @@
+
 package com.lavaflow.customer.service;
 
-import com.lavaflow.auth.repository.UserRepository;
 import com.lavaflow.common.exception.BadRequestException;
 import com.lavaflow.customer.dto.CreateCustomerAddressRequest;
 import com.lavaflow.customer.dto.CustomerAddressResponse;
+import com.lavaflow.customer.dto.GeocodedAddress;
 import com.lavaflow.customer.dto.UpdateCustomerAddressRequest;
-import com.lavaflow.customer.entity.CustomerAddress;
-import com.lavaflow.customer.mapper.CustomerAddressMapper;
-import com.lavaflow.customer.repository.CustomerAddressRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,98 +18,122 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CustomerAddressService {
 
-    private static final int MAX_ADDRESSES = 10;
-
-    private final CustomerAddressRepository customerAddressRepository;
-    private final UserRepository userRepository;
-    private final CustomerAddressMapper customerAddressMapper;
+    private final AddressGeocodingService addressGeocodingService;
+    private final CustomerAddressPersistenceService persistenceService;
 
     @Transactional(readOnly = true)
     public List<CustomerAddressResponse> getAddresses(UUID customerId) {
-        return customerAddressRepository
-                .findByCustomerIdOrderByDefaultAddressDescCreatedAtDesc(customerId)
-                .stream()
-                .map(customerAddressMapper::toResponse)
-                .toList();
+        return persistenceService.getAddresses(customerId);
     }
 
-    @Transactional
-    public CustomerAddressResponse createAddress(UUID customerId, CreateCustomerAddressRequest request) {
-        requireCompleteCoordinates(request.getLatitude(), request.getLongitude());
+    public CustomerAddressResponse createAddress(
+            UUID customerId,
+            CreateCustomerAddressRequest request
+    ) {
+        String addressLine = requireAddressLine(
+                request.getAddressLine()
+        );
 
-        long existingCount = customerAddressRepository.countByCustomerId(customerId);
-        if (existingCount >= MAX_ADDRESSES) {
-            throw new BadRequestException("You can save up to " + MAX_ADDRESSES + " addresses.");
-        }
+        GeocodedAddress coordinates = resolveCoordinates(
+                addressLine,
+                request.getLatitude(),
+                request.getLongitude()
+        );
 
-        CustomerAddress address = customerAddressMapper.toEntity(request);
-        address.setCustomer(userRepository.getReferenceById(customerId));
-        address.setLabel(normalizeLabel(request.getLabel()));
-        address.setAddressLine(request.getAddressLine().trim());
-
-        boolean makeDefault = existingCount == 0 || Boolean.TRUE.equals(request.getDefaultAddress());
-        if (makeDefault) {
-            customerAddressRepository.clearDefaults(customerId, Instant.now());
-        }
-        address.setDefaultAddress(makeDefault);
-
-        return customerAddressMapper.toResponse(customerAddressRepository.saveAndFlush(address));
+        return persistenceService.createAddress(
+                customerId,
+                request,
+                addressLine,
+                coordinates.latitude(),
+                coordinates.longitude()
+        );
     }
 
-    @Transactional
     public CustomerAddressResponse updateAddress(
             UUID customerId,
             UUID addressId,
             UpdateCustomerAddressRequest request
     ) {
-        requireCompleteCoordinates(request.getLatitude(), request.getLongitude());
+        String addressLine = requireAddressLine(
+                request.getAddressLine()
+        );
 
-        CustomerAddress address = findOwned(customerId, addressId);
+        GeocodedAddress coordinates = resolveCoordinates(
+                addressLine,
+                request.getLatitude(),
+                request.getLongitude()
+        );
 
-        customerAddressMapper.updateEntity(request, address);
-        address.setLabel(normalizeLabel(request.getLabel()));
-        address.setAddressLine(request.getAddressLine().trim());
+        return persistenceService.updateAddress(
+                customerId,
+                addressId,
+                request,
+                addressLine,
+                coordinates.latitude(),
+                coordinates.longitude()
+        );
+    }
 
-        if (Boolean.TRUE.equals(request.getDefaultAddress()) && !address.isDefaultAddress()) {
-            customerAddressRepository.clearDefaults(customerId, Instant.now());
-            address.setDefaultAddress(true);
+    public void deleteAddress(
+            UUID customerId,
+            UUID addressId
+    ) {
+        persistenceService.deleteAddress(customerId, addressId);
+    }
+
+    private GeocodedAddress resolveCoordinates(
+            String addressLine,
+            BigDecimal latitude,
+            BigDecimal longitude
+    ) {
+        requireCompleteCoordinates(latitude, longitude);
+
+        if (latitude == null) {
+            return addressGeocodingService.geocode(addressLine);
         }
 
-        return customerAddressMapper.toResponse(customerAddressRepository.saveAndFlush(address));
+        validateCoordinates(latitude, longitude);
+
+        return new GeocodedAddress(
+                latitude,
+                longitude,
+                addressLine
+        );
     }
 
-    @Transactional
-    public void deleteAddress(UUID customerId, UUID addressId) {
-        CustomerAddress address = findOwned(customerId, addressId);
-        boolean wasDefault = address.isDefaultAddress();
+    private void validateCoordinates(
+            BigDecimal latitude,
+            BigDecimal longitude
+    ) {
+        if (latitude.compareTo(BigDecimal.valueOf(-90)) < 0
+                || latitude.compareTo(BigDecimal.valueOf(90)) > 0) {
+            throw new BadRequestException("Invalid latitude.");
+        }
 
-        customerAddressRepository.delete(address);
-        customerAddressRepository.flush();
-
-        if (wasDefault) {
-            customerAddressRepository.findFirstByCustomerIdOrderByCreatedAtDesc(customerId)
-                    .ifPresent(next -> {
-                        next.setDefaultAddress(true);
-                        customerAddressRepository.save(next);
-                    });
+        if (longitude.compareTo(BigDecimal.valueOf(-180)) < 0
+                || longitude.compareTo(BigDecimal.valueOf(180)) > 0) {
+            throw new BadRequestException("Invalid longitude.");
         }
     }
 
-    private CustomerAddress findOwned(UUID customerId, UUID addressId) {
-        return customerAddressRepository.findByIdAndCustomerId(addressId, customerId)
-                .orElseThrow(() -> new EntityNotFoundException("Address not found."));
-    }
-
-    private void requireCompleteCoordinates(BigDecimal latitude, BigDecimal longitude) {
+    private void requireCompleteCoordinates(
+            BigDecimal latitude,
+            BigDecimal longitude
+    ) {
         if ((latitude == null) != (longitude == null)) {
-            throw new BadRequestException("Latitude and longitude must be provided together.");
+            throw new BadRequestException(
+                    "Latitude and longitude must be provided together."
+            );
         }
     }
 
-    private String normalizeLabel(String label) {
-        if (label == null || label.isBlank()) {
-            return null;
+    private String requireAddressLine(String addressLine) {
+        if (addressLine == null || addressLine.isBlank()) {
+            throw new BadRequestException(
+                    "Delivery address must not be empty."
+            );
         }
-        return label.trim();
+
+        return addressLine.trim();
     }
 }

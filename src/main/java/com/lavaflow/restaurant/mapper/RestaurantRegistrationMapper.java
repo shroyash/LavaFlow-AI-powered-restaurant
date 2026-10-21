@@ -15,7 +15,7 @@ public interface RestaurantRegistrationMapper {
     @Mapping(target = "description", source = "restaurantDescription")
     @Mapping(target = "phone", source = "restaurantPhone")
     @Mapping(target = "email", source = "restaurantEmail")
-    @Mapping(target = "status", constant = "INACTIVE")
+    @Mapping(target = "status", constant = "PENDING_APPROVAL")
     Restaurant toRestaurant(RegisterRestaurantRequest request);
 
     @Mapping(target = "restaurantId", source = "restaurant.id")

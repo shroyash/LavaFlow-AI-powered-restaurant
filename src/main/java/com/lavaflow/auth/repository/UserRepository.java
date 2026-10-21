@@ -19,4 +19,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findFirstByRestaurantIdAndRole(UUID restaurantId, UserRole role);
 
     List<User> findByRestaurantId(UUID restaurantId);
+    boolean existsByRole(UserRole role);
 }

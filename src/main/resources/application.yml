@@ -2,10 +2,18 @@ spring:
   application:
     name: lavaflow-ai
 
+  # Spring AI - Local Qwen3 model through Ollama
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: qwen3:4b
+        think: false
+
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/lavaflow_db}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -46,7 +54,7 @@ app:
   jwt:
     privateKeyPath: ${APP_JWT_PRIVATE_KEY_PATH:classpath:keys/private_key.pem}
     publicKeyPath: ${APP_JWT_PUBLIC_KEY_PATH:classpath:keys/public_key.pem}
-    expiration-ms: ${APP_JWT_EXPIRATION_MS:86400000}
+    expiration-ms: ${APP_JWT_EXPIRATION_MS:900000}
     refresh-expiration-ms: ${APP_JWT_REFRESH_EXPIRATION_MS:604800000}
 
   mail:
@@ -67,7 +75,18 @@ springdoc:
 lavaflow:
   frontend:
     base-url: ${FRONTEND_BASE_URL:https://app.lavaflow.com}
+
   kitchen:
     accept-timeout-minutes: ${KITCHEN_ACCEPT_TIMEOUT_MINUTES:10}
-    stream:
-      ticket-secret: ${KITCHEN_STREAM_TICKET_SECRET:lavaflow-kitchen-stream-default-hmac-secret-key-32bytes}
+
+  bootstrap:
+    super-admin:
+      email: ${SUPER_ADMIN_EMAIL}
+      password: ${SUPER_ADMIN_PASSWORD}
+      full-name: ${SUPER_ADMIN_FULL_NAME}
+
+  app:
+    geocoding:
+      nominatim:
+        base-url: https://nominatim.openstreetmap.org
+        user-agent: "LavaFlow/1.0 (shroyash35@gmail.com)"
