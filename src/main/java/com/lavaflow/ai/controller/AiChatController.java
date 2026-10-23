@@ -27,6 +27,7 @@ public class AiChatController {
         AiChatService.ChatResult result = aiChatService.chat(
                 principal.getUser(),
                 request.conversationId(),
+                request.restaurantId(),
                 request.message()
         );
 

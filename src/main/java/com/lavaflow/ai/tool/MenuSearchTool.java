@@ -1,7 +1,10 @@
 package com.lavaflow.ai.tool;
 
-import com.lavaflow.menu.dto.MenuItemResponse;
+import com.lavaflow.ai.tool.dto.MenuItemToolResponse;
+import com.lavaflow.ai.tool.dto.MenuSearchInput;
+import com.lavaflow.ai.tool.dto.MenuSearchResult;
 import com.lavaflow.menu.service.MenuItemService;
+import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -12,6 +15,9 @@ import java.util.UUID;
 @Component
 public class MenuSearchTool {
 
+    private static final int MAX_QUERY_LENGTH = 100;
+    private static final int MAX_RESULTS = 10;
+
     private final MenuItemService menuItemService;
 
     public MenuSearchTool(MenuItemService menuItemService) {
@@ -19,21 +25,67 @@ public class MenuSearchTool {
     }
 
     @Tool(description = """
-            Search the menu of the currently selected restaurant.
-            Use this when a customer asks about menu items, food names,
-            prices, or available dishes.
-            Only return menu items actually present in the database.
+            Search dishes and food items in the currently selected restaurant's menu.
+            Use this when a customer asks about specific dishes, menu items, prices, or recommendations.
+            A restaurant must already be selected for this conversation.
             """)
-    public List<MenuItemResponse> searchMenu(
-            UUID restaurantId,
-            String query) {
+    public MenuSearchResult searchMenu(
+            MenuSearchInput input,
+            ToolContext toolContext
+    ) {
+        UUID restaurantId = extractRestaurantId(toolContext);
+        if (restaurantId == null) {
+            return MenuSearchResult.noRestaurantSelected(
+                    "No restaurant is currently selected. Please select a restaurant first before searching the menu."
+            );
+        }
 
-        return menuItemService.getItems(
+        if (input == null || input.query() == null || input.query().isBlank()) {
+            return MenuSearchResult.validationError("Search query must not be blank.");
+        }
+
+        String trimmedQuery = input.query().trim();
+        if (trimmedQuery.length() > MAX_QUERY_LENGTH) {
+            return MenuSearchResult.validationError(
+                    "Search query exceeds the maximum allowed length of " + MAX_QUERY_LENGTH + " characters."
+            );
+        }
+
+        List<MenuItemToolResponse> items = menuItemService.getItems(
                         restaurantId,
                         null,
                         true,
-                        query,
-                        PageRequest.of(0, 10))
-                .getContent();
+                        trimmedQuery,
+                        PageRequest.of(0, MAX_RESULTS))
+                .getContent()
+                .stream()
+                .map(item -> new MenuItemToolResponse(
+                        UUID.fromString(item.getId()),
+                        item.getName(),
+                        item.getCategoryName(),
+                        item.getDescription(),
+                        item.getPrice(),
+                        item.isAvailable()
+                ))
+                .toList();
+
+        return MenuSearchResult.success(items);
+    }
+
+    private UUID extractRestaurantId(ToolContext toolContext) {
+        if (toolContext == null || toolContext.getContext() == null) {
+            return null;
+        }
+        Object idObj = toolContext.getContext().get("restaurantId");
+        if (idObj instanceof UUID uuid) {
+            return uuid;
+        } else if (idObj instanceof String s) {
+            try {
+                return UUID.fromString(s);
+            } catch (IllegalArgumentException ignored) {
+                return null;
+            }
+        }
+        return null;
     }
 }

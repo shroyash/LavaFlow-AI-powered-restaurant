@@ -14,7 +14,12 @@ public record AiChatRequest(
         )
         String message,
 
-        UUID conversationId
+        UUID conversationId,
+
+        UUID restaurantId
 
 ) {
+    public AiChatRequest(String message, UUID conversationId) {
+        this(message, conversationId, null);
+    }
 }
