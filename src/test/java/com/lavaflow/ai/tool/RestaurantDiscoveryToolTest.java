@@ -6,6 +6,7 @@ import com.lavaflow.ai.tool.dto.RestaurantToolResponse;
 import com.lavaflow.common.enums.RestaurantStatus;
 import com.lavaflow.menu.dto.MenuCategoryResponse;
 import com.lavaflow.menu.service.MenuCategoryService;
+import com.lavaflow.outlet.repository.OutletRepository;
 import com.lavaflow.restaurant.dto.RestaurantResponse;
 import com.lavaflow.restaurant.service.RestaurantService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,11 +40,14 @@ class RestaurantDiscoveryToolTest {
     @Mock
     private MenuCategoryService menuCategoryService;
 
+    @Mock
+    private OutletRepository outletRepository;
+
     private RestaurantDiscoveryTool discoveryTool;
 
     @BeforeEach
     void setUp() {
-        discoveryTool = new RestaurantDiscoveryTool(restaurantService, menuCategoryService);
+        discoveryTool = new RestaurantDiscoveryTool(restaurantService, menuCategoryService, outletRepository);
     }
 
     @Test
@@ -73,6 +78,32 @@ class RestaurantDiscoveryToolTest {
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(restaurantService).getRestaurants(eq(RestaurantStatus.ACTIVE), pageableCaptor.capture());
         assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(10);
+    }
+
+    @Test
+    @DisplayName("listAvailableRestaurants with ToolContext populates capture with real outletId")
+    @SuppressWarnings("unchecked")
+    void listAvailableRestaurants_withCapture_populatesOutletId() {
+        UUID restaurantId = UUID.randomUUID();
+        RestaurantResponse response = RestaurantResponse.builder()
+                .id(restaurantId.toString())
+                .name("City Chicken")
+                .build();
+
+        when(restaurantService.getRestaurants(eq(RestaurantStatus.ACTIVE), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(response)));
+        // Simulate no outlets found — capture should still work
+        when(outletRepository.findByRestaurantIdAndStatusIn(eq(restaurantId), any(Collection.class)))
+                .thenReturn(List.of());
+
+        NearbyRestaurantResultCapture capture = new NearbyRestaurantResultCapture();
+        ToolContext ctx = new ToolContext(Map.of("nearbyRestaurantResultCapture", capture));
+
+        discoveryTool.listAvailableRestaurants(ctx);
+
+        assertThat(capture.getRestaurants()).hasSize(1);
+        assertThat(capture.getRestaurants().get(0).restaurantId()).isEqualTo(restaurantId);
+        assertThat(capture.getRestaurants().get(0).restaurantName()).isEqualTo("City Chicken");
     }
 
     @Test
@@ -117,4 +148,5 @@ class RestaurantDiscoveryToolTest {
         verify(menuCategoryService).getCategories(restaurantId, true);
     }
 }
+
 

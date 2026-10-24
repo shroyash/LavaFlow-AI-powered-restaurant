@@ -136,6 +136,12 @@ public class NearbyRestaurantTool {
                     ))
                     .toList();
 
+            Object captureObject = toolContext.getContext().get("nearbyRestaurantResultCapture");
+
+            if (captureObject instanceof NearbyRestaurantResultCapture capture) {
+                capture.setRestaurants(restaurants);
+            }
+
             return NearbyRestaurantListResult.success(restaurants);
         } catch (Exception ex) {
             return NearbyRestaurantListResult.error("Unable to search for nearby restaurants at this time. Please try again.");

@@ -51,11 +51,13 @@ public class MenuSearchTool {
             );
         }
 
+        String searchPattern = isGeneralMenuQuery(trimmedQuery) ? null : trimmedQuery;
+
         List<MenuItemToolResponse> items = menuItemService.getItems(
                         restaurantId,
                         null,
                         true,
-                        trimmedQuery,
+                        searchPattern,
                         PageRequest.of(0, MAX_RESULTS))
                 .getContent()
                 .stream()
@@ -69,7 +71,36 @@ public class MenuSearchTool {
                 ))
                 .toList();
 
+        if (items.isEmpty() && searchPattern != null) {
+            var fallbackPage = menuItemService.getItems(
+                            restaurantId,
+                            null,
+                            true,
+                            null,
+                            PageRequest.of(0, MAX_RESULTS));
+            if (fallbackPage != null && fallbackPage.getContent() != null && !fallbackPage.getContent().isEmpty()) {
+                items = fallbackPage.getContent()
+                        .stream()
+                        .map(item -> new MenuItemToolResponse(
+                                UUID.fromString(item.getId()),
+                                item.getName(),
+                                item.getCategoryName(),
+                                item.getDescription(),
+                                item.getPrice(),
+                                item.isAvailable()
+                        ))
+                        .toList();
+            }
+        }
+
         return MenuSearchResult.success(items);
+    }
+
+    private boolean isGeneralMenuQuery(String q) {
+        String lower = q.toLowerCase(java.util.Locale.ROOT).trim();
+        return lower.equals("all") || lower.equals("menu") || lower.equals("full menu")
+                || lower.equals("menulist") || lower.equals("menu list")
+                || lower.equals("dishes") || lower.equals("food") || lower.equals("*");
     }
 
     private UUID extractRestaurantId(ToolContext toolContext) {

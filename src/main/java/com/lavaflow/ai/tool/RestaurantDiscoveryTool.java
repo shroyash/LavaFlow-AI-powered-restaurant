@@ -2,9 +2,13 @@ package com.lavaflow.ai.tool;
 
 import com.lavaflow.ai.tool.dto.CategoryListResult;
 import com.lavaflow.ai.tool.dto.MenuCategoryToolResponse;
+import com.lavaflow.ai.tool.dto.NearbyRestaurantToolResponse;
 import com.lavaflow.ai.tool.dto.RestaurantToolResponse;
+import com.lavaflow.common.enums.OutletStatus;
 import com.lavaflow.common.enums.RestaurantStatus;
 import com.lavaflow.menu.service.MenuCategoryService;
+import com.lavaflow.outlet.entity.Outlet;
+import com.lavaflow.outlet.repository.OutletRepository;
 import com.lavaflow.restaurant.service.RestaurantService;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
@@ -12,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,13 +25,16 @@ public class RestaurantDiscoveryTool {
 
     private final RestaurantService restaurantService;
     private final MenuCategoryService menuCategoryService;
+    private final OutletRepository outletRepository;
 
     public RestaurantDiscoveryTool(
             RestaurantService restaurantService,
-            MenuCategoryService menuCategoryService
+            MenuCategoryService menuCategoryService,
+            OutletRepository outletRepository
     ) {
         this.restaurantService = restaurantService;
         this.menuCategoryService = menuCategoryService;
+        this.outletRepository = outletRepository;
     }
 
     @Tool(description = """
@@ -34,8 +42,8 @@ public class RestaurantDiscoveryTool {
             Use this when the customer wants to explore, discover, or find available restaurants.
             These restaurants are currently active on the platform.
             """)
-    public List<RestaurantToolResponse> listAvailableRestaurants() {
-        return restaurantService.getRestaurants(
+    public List<RestaurantToolResponse> listAvailableRestaurants(ToolContext toolContext) {
+        List<RestaurantToolResponse> restaurants = restaurantService.getRestaurants(
                         RestaurantStatus.ACTIVE,
                         PageRequest.of(0, 10, Sort.by("name").ascending())
                 )
@@ -48,6 +56,41 @@ public class RestaurantDiscoveryTool {
                         "ACTIVE"
                 ))
                 .toList();
+
+        Object captureObj = toolContext != null && toolContext.getContext() != null
+                ? toolContext.getContext().get("nearbyRestaurantResultCapture")
+                : null;
+        if (captureObj instanceof NearbyRestaurantResultCapture capture) {
+            List<NearbyRestaurantToolResponse> options = new ArrayList<>();
+            for (RestaurantToolResponse r : restaurants) {
+                // Look up the first active outlet so the frontend receives a real outletId
+                // and can render a functional "Select Restaurant" button.
+                List<Outlet> outlets = outletRepository.findByRestaurantIdAndStatusIn(
+                        r.id(),
+                        List.of(OutletStatus.ACTIVE, OutletStatus.BUSY)
+                );
+                Outlet firstOutlet = outlets.isEmpty() ? null : outlets.get(0);
+
+                options.add(new NearbyRestaurantToolResponse(
+                        r.id(),
+                        r.name(),
+                        r.description(),
+                        firstOutlet != null ? firstOutlet.getId() : null,
+                        firstOutlet != null ? firstOutlet.getName() : null,
+                        firstOutlet != null ? firstOutlet.getAddress() : null,
+                        null,
+                        30,
+                        false
+                ));
+            }
+            capture.setRestaurants(options);
+        }
+
+        return restaurants;
+    }
+
+    public List<RestaurantToolResponse> listAvailableRestaurants() {
+        return listAvailableRestaurants(null);
     }
 
     @Tool(description = """

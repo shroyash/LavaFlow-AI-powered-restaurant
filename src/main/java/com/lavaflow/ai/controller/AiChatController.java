@@ -34,7 +34,25 @@ public class AiChatController {
         return ResponseEntity.ok(
                 new AiChatResponse(
                         result.conversationId(),
-                        result.reply()
+                        result.reply(),
+                        result.restaurants().stream()
+                                .map(restaurant -> new AiChatResponse.RestaurantOption(
+                                        restaurant.restaurantId(),
+                                        restaurant.restaurantName(),
+                                        restaurant.description(),
+                                        // Fall back to restaurantId when no specific outlet is found
+                                        // so the frontend always has a non-null outletId for card selection.
+                                        restaurant.outletId() != null
+                                                ? restaurant.outletId()
+                                                : restaurant.restaurantId(),
+                                        restaurant.outletName(),
+                                        restaurant.outletAddress(),
+                                        restaurant.distanceKm() == null
+                                                ? null
+                                                : restaurant.distanceKm().toPlainString(),
+                                        restaurant.estimatedDeliveryMinutes()
+                                ))
+                                .toList()
                 )
         );
     }

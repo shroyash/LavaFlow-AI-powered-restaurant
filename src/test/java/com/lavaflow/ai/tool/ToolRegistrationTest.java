@@ -6,6 +6,7 @@ import com.lavaflow.delivery.service.DeliveryLocationResolver;
 import com.lavaflow.delivery.service.NearbyRestaurantService;
 import com.lavaflow.menu.service.MenuCategoryService;
 import com.lavaflow.menu.service.MenuItemService;
+import com.lavaflow.outlet.repository.OutletRepository;
 import com.lavaflow.restaurant.service.RestaurantService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,18 @@ class ToolRegistrationTest {
     @Mock
     private AddressGeocodingService addressGeocodingService;
 
+    @Mock
+    private com.lavaflow.order.service.OrderSubmissionService orderSubmissionService;
+
+    @Mock
+    private com.lavaflow.order.service.OrderQueryService orderQueryService;
+
+    @Mock
+    private com.lavaflow.cart.service.CartService cartService;
+
+    @Mock
+    private OutletRepository outletRepository;
+
     @Test
     @DisplayName("MenuSearchTool registers with Spring AI and excludes ToolContext from model input schema")
     void menuSearchTool_registersCorrectly() {
@@ -68,7 +81,7 @@ class ToolRegistrationTest {
     @Test
     @DisplayName("RestaurantDiscoveryTool registers listAvailableRestaurants and getMenuCategories without ToolContext leaking")
     void restaurantDiscoveryTool_registersCorrectly() {
-        RestaurantDiscoveryTool tool = new RestaurantDiscoveryTool(restaurantService, menuCategoryService);
+        RestaurantDiscoveryTool tool = new RestaurantDiscoveryTool(restaurantService, menuCategoryService, outletRepository);
         ToolCallback[] callbacks = ToolCallbacks.from(tool);
 
         List<String> names = Arrays.stream(callbacks)
@@ -144,6 +157,36 @@ class ToolRegistrationTest {
         assertThat(schema).contains("addressId");
         assertThat(schema).contains("manualAddressLine");
         assertThat(schema).contains("query");
+    }
+
+    @Test
+    @DisplayName("OrderTool registers getOrderSummary, placeOrder, getMyOrders, and getOrderStatus correctly")
+    void orderTool_registersCorrectly() {
+        OrderTool tool = new OrderTool(
+                orderSubmissionService,
+                orderQueryService,
+                cartService,
+                customerAddressService
+        );
+        ToolCallback[] callbacks = ToolCallbacks.from(tool);
+
+        List<String> names = Arrays.stream(callbacks)
+                .map(c -> c.getToolDefinition().name())
+                .toList();
+
+        assertThat(names).containsExactlyInAnyOrder(
+                "getOrderSummary",
+                "placeOrder",
+                "getMyOrders",
+                "getOrderStatus"
+        );
+
+        for (ToolCallback callback : callbacks) {
+            String schema = callback.getToolDefinition().inputSchema();
+            assertThat(schema).doesNotContain("toolContext");
+            assertThat(schema).doesNotContain("ToolContext");
+            assertThat(schema).doesNotContain("customerId");
+        }
     }
 }
 

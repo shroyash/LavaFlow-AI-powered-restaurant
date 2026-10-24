@@ -2,13 +2,12 @@ spring:
   application:
     name: lavaflow-ai
 
-  # Spring AI - Local Qwen3 model through Ollama
+  # Spring AI - Local fast model through Ollama
   ai:
     ollama:
       base-url: http://localhost:11434
       chat:
-        model: qwen3:4b
-        think: false
+        model: qwen2.5:1.5b
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/lavaflow_db}
